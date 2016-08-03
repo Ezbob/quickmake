@@ -53,13 +53,13 @@ SRC_DIR = $(addprefix $(SOURCE_PREFIX), $(MODULES))
 BUILD_DIR = $(addprefix $(BUILD_PREFIX), $(MODULES))
 
 SRC = $(foreach sdir, $(SRC_DIR), $(wildcard $(sdir)/*.c)) 
-OBJ = $(patsubst $(SOURCE_PREFIX)%.c, $(BUILD_PREFIX)%.o, $(SRC))
+OBJ = $(patsubst $(SOURCE_PREFIX)%.c, $(BUILD_PREFIX)modules/%.o, $(SRC))
 
 TEXEC_PATH = $(addprefix $(BIN_PATH), $(TEST_EXEC))
 TEST_SRC_DIR = $(addprefix $(TEST_PREFIX), $(TEST_MODULES))
 TEST_DIR = $(addprefix $(BUILD_PREFIX), $(TEST_MODULES))
 T_SRC = $(foreach tdir, $(TEST_SRC_DIR), $(wildcard $(tdir)/*.c))
-T_OBJ = $(patsubst $(TEST_PREFIX)%.c, $(BUILD_PREFIX)%.o, $(T_SRC))
+T_OBJ = $(patsubst $(TEST_PREFIX)%.c, $(BUILD_PREFIX)test_modules/%.o, $(T_SRC))
 
 VPATH = $(SRC_DIR) $(TEST_SRC_DIR)
 
