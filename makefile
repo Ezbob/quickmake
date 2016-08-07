@@ -32,13 +32,13 @@ CFLAGS = -g -std=c99 -Wall -Wextra -Wpedantic -Wshadow -Wpointer-arith -Wcast-qu
 MODULES = my_module
 TEST_MODULES = my_test_module
 
-# test executable name
+# test executable name 
 TEST_EXEC = test
 
-# "default" package
+# default executable
 EXEC = main
 
-# Directory names
+# directory names
 BUILD_PREFIX = build/
 SOURCE_PREFIX = src/
 TEST_PREFIX = tests/
@@ -50,14 +50,15 @@ BIN_PATH = $(addprefix $(BUILD_PREFIX), bin/)
 
 EXEC_PATH = $(addprefix $(BIN_PATH), $(EXEC))
 SRC_DIR = $(addprefix $(SOURCE_PREFIX), $(MODULES))
-BUILD_DIR = $(addprefix $(BUILD_PREFIX), $(MODULES))
+BUILD_DIR = $(addprefix $(BUILD_PREFIX), $(addprefix modules/, $(MODULES)))
 
 SRC = $(foreach sdir, $(SRC_DIR), $(wildcard $(sdir)/*.c)) 
 OBJ = $(patsubst $(SOURCE_PREFIX)%.c, $(BUILD_PREFIX)modules/%.o, $(SRC))
 
 TEXEC_PATH = $(addprefix $(BIN_PATH), $(TEST_EXEC))
 TEST_SRC_DIR = $(addprefix $(TEST_PREFIX), $(TEST_MODULES))
-TEST_DIR = $(addprefix $(BUILD_PREFIX), $(TEST_MODULES))
+TEST_DIR = $(addprefix $(BUILD_PREFIX), $(addprefix test_modules/, $(TEST_MODULES)))
+
 T_SRC = $(foreach tdir, $(TEST_SRC_DIR), $(wildcard $(tdir)/*.c))
 T_OBJ = $(patsubst $(TEST_PREFIX)%.c, $(BUILD_PREFIX)test_modules/%.o, $(T_SRC))
 
