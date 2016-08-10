@@ -25,19 +25,19 @@
 CXX = g++
 CXXFLAGS = -g -std=c++11 -Wall -Wextra -Wpedantic
 LDFLAGS =
-LDLIBS = 
+LDLIBS = -lsfml-graphics -lsfml-window -lsfml-system
 
 ## EDIT THESE VARIABLES TO CUSTOMIZE THE BUILD  
 
 # Modules within source directory and test directory
-MODULES = my_module
+MODULES = fun
 TEST_MODULES = my_test_module
 
 # test executable name 
 TEST_EXEC = test
 
 # default executable
-EXEC = main
+EXEC = main_sfml
 
 # directory names
 BUILD_PREFIX = build/
@@ -54,14 +54,14 @@ SRC_DIR = $(addprefix $(SOURCE_PREFIX), $(MODULES))
 BUILD_DIR = $(addprefix $(BUILD_PREFIX), $(addprefix modules/, $(MODULES)))
 
 SRC = $(foreach sdir, $(SRC_DIR), $(wildcard $(sdir)/*.cc)) $(foreach sdir, $(SRC_DIR), $(wildcard $(sdir)/*.cpp)) 
-OBJ = $(patsubst $(SOURCE_PREFIX)%.cc, $(BUILD_PREFIX)modules/%.o, $(SRC)) $(patsubst $(SOURCE_PREFIX)%.cpp, $(BUILD_PREFIX)modules/%.o, $(SRC))
+OBJ = $(patsubst $(SOURCE_PREFIX)%.cc, $(BUILD_PREFIX)modules/%.o, $(filter %.cc, $(SRC))) $(patsubst $(SOURCE_PREFIX)%.cpp, $(BUILD_PREFIX)modules/%.o, $(filter %.cpp, $(SRC)))
 
 TEXEC_PATH = $(addprefix $(BIN_PATH), $(TEST_EXEC))
 TEST_SRC_DIR = $(addprefix $(TEST_PREFIX), $(TEST_MODULES))
 TEST_DIR = $(addprefix $(BUILD_PREFIX), $(addprefix test_modules/, $(TEST_MODULES)))
 
 T_SRC = $(foreach tdir, $(TEST_SRC_DIR), $(wildcard $(tdir)/*.cc)) $(foreach tdir, $(TEST_SRC_DIR), $(wildcard $(tdir)/*.cpp))
-T_OBJ = $(patsubst $(TEST_PREFIX)%.cc, $(BUILD_PREFIX)test_modules/%.o, $(T_SRC)) $(patsubst $(TEST_PREFIX)%.cpp, $(BUILD_PREFIX)test_modules/%.o, $(T_SRC))
+T_OBJ = $(patsubst $(TEST_PREFIX)%.cc, $(BUILD_PREFIX)test_modules/%.o, $(filter %.cc, $(T_SRC))) $(patsubst $(TEST_PREFIX)%.cpp, $(BUILD_PREFIX)test_modules/%.o, $(filter %.cpp, $(T_SRC)))
 
 VPATH = $(SRC_DIR) $(TEST_SRC_DIR)
 
