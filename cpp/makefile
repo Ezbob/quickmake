@@ -1,12 +1,12 @@
 ########
 #
-# Makefile that finds C-source files and generates compilation rules for
-# use with the GCC compiler.
+# Makefile that finds C++-source files and generates compilation rules for
+# use with the G++ compiler.
 #
 # This makefile relies a specific source tree organization created by the user:
 #	- SOURCE_PREFIX: this director contains the different MODULES directories which in turn 
-# contains the .c source files for the project
-#	- TEST_PREFIX: contains the TEST_MODULES directories which contains the .c source files for 
+# contains the .cc/.cpp source files for the project
+#	- TEST_PREFIX: contains the TEST_MODULES directories which contains the .cc/.cpp source files for 
 # the project's tests
 #	- INCLUDE_PREFIX: contains headers for the projects 
 # 
@@ -22,9 +22,8 @@
 #	- checkdirs: Creates the directory tree for the compilation output from compiling the EXEC executable
 #
 ########
-CC = gcc
-CFLAGS = -g -std=c99 -Wall -Wextra -Wpedantic -Wshadow -Wpointer-arith -Wcast-qual \
-        -Wstrict-prototypes -Wmissing-prototypes
+CXX = g++
+CXXFLAGS = -g -std=c++11 -Wall -Wextra -Wpedantic
 LDFLAGS =
 LDLIBS = 
 
@@ -54,15 +53,15 @@ EXEC_PATH = $(addprefix $(BIN_PATH), $(EXEC))
 SRC_DIR = $(addprefix $(SOURCE_PREFIX), $(MODULES))
 BUILD_DIR = $(addprefix $(BUILD_PREFIX), $(addprefix modules/, $(MODULES)))
 
-SRC = $(foreach sdir, $(SRC_DIR), $(wildcard $(sdir)/*.c)) 
-OBJ = $(patsubst $(SOURCE_PREFIX)%.c, $(BUILD_PREFIX)modules/%.o, $(SRC))
+SRC = $(foreach sdir, $(SRC_DIR), $(wildcard $(sdir)/*.cc)) $(foreach sdir, $(SRC_DIR), $(wildcard $(sdir)/*.cpp)) 
+OBJ = $(patsubst $(SOURCE_PREFIX)%.cc, $(BUILD_PREFIX)modules/%.o, $(SRC)) $(patsubst $(SOURCE_PREFIX)%.cpp, $(BUILD_PREFIX)modules/%.o, $(SRC))
 
 TEXEC_PATH = $(addprefix $(BIN_PATH), $(TEST_EXEC))
 TEST_SRC_DIR = $(addprefix $(TEST_PREFIX), $(TEST_MODULES))
 TEST_DIR = $(addprefix $(BUILD_PREFIX), $(addprefix test_modules/, $(TEST_MODULES)))
 
-T_SRC = $(foreach tdir, $(TEST_SRC_DIR), $(wildcard $(tdir)/*.c))
-T_OBJ = $(patsubst $(TEST_PREFIX)%.c, $(BUILD_PREFIX)test_modules/%.o, $(T_SRC))
+T_SRC = $(foreach tdir, $(TEST_SRC_DIR), $(wildcard $(tdir)/*.cc)) $(foreach tdir, $(TEST_SRC_DIR), $(wildcard $(tdir)/*.cpp))
+T_OBJ = $(patsubst $(TEST_PREFIX)%.cc, $(BUILD_PREFIX)test_modules/%.o, $(T_SRC)) $(patsubst $(TEST_PREFIX)%.cpp, $(BUILD_PREFIX)test_modules/%.o, $(T_SRC))
 
 VPATH = $(SRC_DIR) $(TEST_SRC_DIR)
 
@@ -85,10 +84,10 @@ clean:
 	rm -rf $(BUILD_PREFIX)
 
 $(EXEC_PATH): $(OBJ)
-	$(CC) -iquote$(INCLUDE_PREFIX) $(CFLAGS) $^ -o $@ $(LDFLAGS) $(LDLIBS)
+	$(CXX) -iquote$(INCLUDE_PREFIX) $(CFLAGS) $^ -o $@ $(LDFLAGS) $(LDLIBS)
 
 $(TEXEC_PATH): $(OBJ) $(T_OBJ)
-	$(CC) -iquote$(INCLUDE_PREFIX) $(CFLAGS) $^ -o $@ $(LDFLAGS) $(LDLIBS)
+	$(CXX) -iquote$(INCLUDE_PREFIX) $(CFLAGS) $^ -o $@ $(LDFLAGS) $(LDLIBS)
 
 ## Auto-generating implicit rules
 
@@ -98,8 +97,10 @@ GEN_DIRS = $(BIN_PATH) $(BUILD_DIR) $(TEST_DIR) $(SRC_DIR) $(TEST_SRC_DIR) $(INC
 GEN_C_RULES = $(BUILD_DIR) $(TEST_DIR)
 
 define make-c-goal 
-$1/%.o: %.c
-	$(CC) -iquote$(INCLUDE_PREFIX) $(CFLAGS) -c $$< -o $$@ $(LDFLAGS) $(LDLIBS)
+$1/%.o: %.cc 
+	$(CXX) -iquote$(INCLUDE_PREFIX) $(CFLAGS) -c $$< -o $$@ $(LDFLAGS) $(LDLIBS)
+$1/%.o: %.cpp 
+	$(CXX) -iquote$(INCLUDE_PREFIX) $(CFLAGS) -c $$< -o $$@ $(LDFLAGS) $(LDLIBS)
 endef
 
 define make-dirs

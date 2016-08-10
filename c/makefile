@@ -25,8 +25,6 @@
 CC = gcc
 CFLAGS = -g -std=c99 -Wall -Wextra -Wpedantic -Wshadow -Wpointer-arith -Wcast-qual \
         -Wstrict-prototypes -Wmissing-prototypes
-LDFLAGS =
-LDLIBS = 
 
 ## EDIT THESE VARIABLES TO CUSTOMIZE THE BUILD  
 
@@ -85,10 +83,10 @@ clean:
 	rm -rf $(BUILD_PREFIX)
 
 $(EXEC_PATH): $(OBJ)
-	$(CC) -iquote$(INCLUDE_PREFIX) $(CFLAGS) $^ -o $@ $(LDFLAGS) $(LDLIBS)
+	$(CC) -iquote$(INCLUDE_PREFIX) $(CFLAGS) $^ -o $@
 
 $(TEXEC_PATH): $(OBJ) $(T_OBJ)
-	$(CC) -iquote$(INCLUDE_PREFIX) $(CFLAGS) $^ -o $@ $(LDFLAGS) $(LDLIBS)
+	$(CC) -iquote$(INCLUDE_PREFIX) $(CFLAGS) $^ -o $@
 
 ## Auto-generating implicit rules
 
@@ -99,7 +97,7 @@ GEN_C_RULES = $(BUILD_DIR) $(TEST_DIR)
 
 define make-c-goal 
 $1/%.o: %.c
-	$(CC) -iquote$(INCLUDE_PREFIX) $(CFLAGS) -c $$< -o $$@ $(LDFLAGS) $(LDLIBS)
+	$(CC) -iquote$(INCLUDE_PREFIX) $(CFLAGS) -c $$< -o $$@
 endef
 
 define make-dirs
