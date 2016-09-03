@@ -22,45 +22,26 @@
 #	- checkdirs: Creates the directory tree for the compilation output from compiling the EXEC executable
 #
 ########
-CC = gcc
-CFLAGS = -g -std=c99 -Wall -Wextra -Wpedantic -Wshadow -Wpointer-arith -Wcast-qual \
-        -Wstrict-prototypes -Wmissing-prototypes
-
-## EDIT THESE VARIABLES TO CUSTOMIZE THE BUILD  
-
-# Modules within source directory and test directory
-MODULES = my_module
-TEST_MODULES = my_test_module
-
-# test executable name 
-TEST_EXEC = test
-
-# default executable
-EXEC = main
-
-# directory names
-BUILD_PREFIX = build/
-SOURCE_PREFIX = src/
-TEST_PREFIX = tests/
-INCLUDE_PREFIX = include/
-
-### END OF EDIT THIS
+include buildvars.mk
 
 BIN_PATH = $(addprefix $(BUILD_PREFIX), bin/)
 
-EXEC_PATH = $(addprefix $(BIN_PATH), $(EXEC))
-SRC_DIR = $(addprefix $(SOURCE_PREFIX), $(MODULES))
-BUILD_DIR = $(addprefix $(BUILD_PREFIX), $(addprefix modules/, $(MODULES)))
+MODULES_DIR = $(foreach mod, $(MODULES), $(mod)/ )
+TEST_MODULES_DIR = $(foreach mod, $(TEST_MODULES), $(mod)/ )
 
-SRC = $(foreach sdir, $(SRC_DIR), $(wildcard $(sdir)/*.c)) 
-OBJ = $(patsubst $(SOURCE_PREFIX)%.c, $(BUILD_PREFIX)modules/%.o, $(SRC))
+EXEC_PATH = $(addprefix $(BIN_PATH), $(EXEC))
+SRC_DIR = $(addprefix $(SOURCE_PREFIX), $(MODULES_DIR)) $(SOURCE_PREFIX)
+BUILD_DIR = $(addprefix $(BUILD_PREFIX), $(addprefix $(COMPILED_DIR), $(MODULES_DIR))) $(addprefix $(BUILD_PREFIX), $(COMPILED_DIR))
+
+SRC = $(foreach sdir, $(SRC_DIR), $(wildcard $(sdir)*.c)) 
+OBJ = $(patsubst $(SOURCE_PREFIX)%.c, $(BUILD_PREFIX)$(COMPILED_DIR)%.o, $(SRC))
 
 TEXEC_PATH = $(addprefix $(BIN_PATH), $(TEST_EXEC))
-TEST_SRC_DIR = $(addprefix $(TEST_PREFIX), $(TEST_MODULES))
-TEST_DIR = $(addprefix $(BUILD_PREFIX), $(addprefix test_modules/, $(TEST_MODULES)))
+TEST_SRC_DIR = $(addprefix $(TEST_PREFIX), $(TEST_MODULES_DIR)) $(TEST_PREFIX)
+TEST_DIR = $(addprefix $(BUILD_PREFIX), $(addprefix $(T_COMPILED_DIR), $(TEST_MODULES_DIR))) $(addprefix $(BUILD_PREFIX), $(T_COMPILED_DIR))
 
-T_SRC = $(foreach tdir, $(TEST_SRC_DIR), $(wildcard $(tdir)/*.c))
-T_OBJ = $(patsubst $(TEST_PREFIX)%.c, $(BUILD_PREFIX)test_modules/%.o, $(T_SRC))
+T_SRC = $(foreach tdir, $(TEST_SRC_DIR), $(wildcard $(tdir)*.c)) $(wildcard $(TEST_PREFIX)*.c)
+T_OBJ = $(patsubst $(TEST_PREFIX)%.c, $(BUILD_PREFIX)$(T_COMPILED_DIR)%.o, $(T_SRC))
 
 VPATH = $(SRC_DIR) $(TEST_SRC_DIR)
 
@@ -83,10 +64,10 @@ clean:
 	rm -rf $(BUILD_PREFIX)
 
 $(EXEC_PATH): $(OBJ)
-	$(CC) -iquote$(INCLUDE_PREFIX) $(CFLAGS) $^ -o $@
+	$(CC) -iquote$(INCLUDE_PREFIX) $(CFLAGS) $^ -o $@ $(LDFLAGS) $(LDLIBS)
 
 $(TEXEC_PATH): $(OBJ) $(T_OBJ)
-	$(CC) -iquote$(INCLUDE_PREFIX) $(CFLAGS) $^ -o $@
+	$(CC) -iquote$(INCLUDE_PREFIX) $(CFLAGS) $^ -o $@ $(LDFLAGS) $(LDLIBS)
 
 ## Auto-generating implicit rules
 
@@ -96,8 +77,8 @@ GEN_DIRS = $(BIN_PATH) $(BUILD_DIR) $(TEST_DIR) $(SRC_DIR) $(TEST_SRC_DIR) $(INC
 GEN_C_RULES = $(BUILD_DIR) $(TEST_DIR)
 
 define make-c-goal 
-$1/%.o: %.c
-	$(CC) -iquote$(INCLUDE_PREFIX) $(CFLAGS) -c $$< -o $$@
+$1%.o: %.c
+	$(CC) -iquote$(INCLUDE_PREFIX) $(CFLAGS) -c $$< -o $$@ $(LDFLAGS) $(LDLIBS)
 endef
 
 define make-dirs
