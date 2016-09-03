@@ -16,11 +16,11 @@ LDLIBS =
 LDFLAGS =
 
 # Modules within source directory and test directory
-MODULES = redblacktree
-TEST_MODULES = test_redblacktree
+MODULES = module1 module2
+TEST_MODULES = test_module1 test_module2
 
 # Test executable name (may be empty if the project doesn't have any tests) 
-TEST_EXEC = tree_test
+TEST_EXEC = test_exec
 
 # Main executable name (may be empty if the project doesn't have a specific main function)
 EXEC = main
