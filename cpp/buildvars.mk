@@ -4,24 +4,23 @@
 ##
 
 # Which compiler to use
-CC = gcc
+CXX = g++
 
 # Compiler flags added
-CFLAGS = -g -std=c99 -Wall -Wextra -Wpedantic -Wshadow -Wpointer-arith -Wcast-qual \
-        -Wstrict-prototypes -Wmissing-prototypes  
+CXXFLAGS = -g -std=c++14 -Wall -Wextra -Wpedantic
 
 # Libraries to use 
-LDLIBS =
+LDLIBS = 
 
 # Linker flags
 LDFLAGS =
 
 # Modules within source directory and test directory
-MODULES = module1 module2
-TEST_MODULES = test_module1 test_module2
+MODULES = fun
+TEST_MODULES = my_test_module
 
 # Test executable name (may be empty if the project doesn't have any tests) 
-TEST_EXEC = test_exec
+TEST_EXEC = test
 
 # Main executable name (may be empty if the project doesn't have a specific main function)
 EXEC = main

@@ -16,6 +16,7 @@
 #	- tests: Compiles the test code and creates the TEST_EXEC executable in
 # the BUILD_PREFIX folder under the "bin/" folder
 #	- run_tests: Relies on the "tests" target and then executes the TEST_EXEC
+#	- run: Like run_tests, this target builds the source and runs the main executable
 #	- rollout: Creates the source tree organization
 #	- clean: Removes the BUILD_PREFIX directory
 #	- testcheckdirs: Creates the directory tree for the compilation output from compiling the tests
@@ -53,6 +54,9 @@ tests: testcheckdirs $(TEXEC_PATH)
 
 run_tests: tests
 	exec $(TEXEC_PATH)
+
+run: all
+	exec $(EXEC_PATH)
 
 rollout: $(INCLUDE_PREFIX) $(SRC_DIR) $(TEST_SRC_DIR)
 

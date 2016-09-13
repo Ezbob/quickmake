@@ -22,46 +22,26 @@
 #	- checkdirs: Creates the directory tree for the compilation output from compiling the EXEC executable
 #
 ########
-CXX = g++
-CXXFLAGS = -g -std=c++11 -Wall -Wextra -Wpedantic
-LDFLAGS =
-LDLIBS = -lsfml-graphics -lsfml-window -lsfml-system
-
-## EDIT THESE VARIABLES TO CUSTOMIZE THE BUILD  
-
-# Modules within source directory and test directory
-MODULES = fun
-TEST_MODULES = my_test_module
-
-# test executable name 
-TEST_EXEC = test
-
-# default executable
-EXEC = main_sfml
-
-# directory names
-BUILD_PREFIX = build/
-SOURCE_PREFIX = src/
-TEST_PREFIX = tests/
-INCLUDE_PREFIX = include/
-
-### END OF EDIT THIS
+include buildvars.mk
 
 BIN_PATH = $(addprefix $(BUILD_PREFIX), bin/)
 
-EXEC_PATH = $(addprefix $(BIN_PATH), $(EXEC))
-SRC_DIR = $(addprefix $(SOURCE_PREFIX), $(MODULES))
-BUILD_DIR = $(addprefix $(BUILD_PREFIX), $(addprefix modules/, $(MODULES)))
+MODULES_DIR = $(foreach mod, $(MODULES), $(mod)/ )
+TEST_MODULES_DIR = $(foreach mod, $(TEST_MODULES), $(mod)/ )
 
-SRC = $(foreach sdir, $(SRC_DIR), $(wildcard $(sdir)/*.cc)) $(foreach sdir, $(SRC_DIR), $(wildcard $(sdir)/*.cpp)) 
-OBJ = $(patsubst $(SOURCE_PREFIX)%.cc, $(BUILD_PREFIX)modules/%.o, $(filter %.cc, $(SRC))) $(patsubst $(SOURCE_PREFIX)%.cpp, $(BUILD_PREFIX)modules/%.o, $(filter %.cpp, $(SRC)))
+EXEC_PATH = $(addprefix $(BIN_PATH), $(EXEC))
+SRC_DIR = $(addprefix $(SOURCE_PREFIX), $(MODULES_DIR))
+BUILD_DIR = $(addprefix $(BUILD_PREFIX), $(addprefix $(COMPILED_DIR), $(MODULES_DIR))) $(addprefix $(BUILD_PREFIX), $(COMPILED_DIR))
+
+SRC = $(foreach sdir, $(SRC_DIR), $(wildcard $(sdir)*.cc)) $(foreach sdir, $(SRC_DIR), $(wildcard $(sdir)*.cpp)) 
+OBJ = $(patsubst $(SOURCE_PREFIX)%.cc, $(BUILD_PREFIX)$(COMPILED_DIR)%.o, $(filter %.cc, $(SRC))) $(patsubst $(SOURCE_PREFIX)%.cpp, $(BUILD_PREFIX)$(COMPILED_DIR)%.o, $(filter %.cpp, $(SRC))) 
 
 TEXEC_PATH = $(addprefix $(BIN_PATH), $(TEST_EXEC))
 TEST_SRC_DIR = $(addprefix $(TEST_PREFIX), $(TEST_MODULES))
-TEST_DIR = $(addprefix $(BUILD_PREFIX), $(addprefix test_modules/, $(TEST_MODULES)))
+TEST_DIR = $(addprefix $(BUILD_PREFIX), $(addprefix $(T_COMPILED_DIR), $(TEST_MODULES)))
 
-T_SRC = $(foreach tdir, $(TEST_SRC_DIR), $(wildcard $(tdir)/*.cc)) $(foreach tdir, $(TEST_SRC_DIR), $(wildcard $(tdir)/*.cpp))
-T_OBJ = $(patsubst $(TEST_PREFIX)%.cc, $(BUILD_PREFIX)test_modules/%.o, $(filter %.cc, $(T_SRC))) $(patsubst $(TEST_PREFIX)%.cpp, $(BUILD_PREFIX)test_modules/%.o, $(filter %.cpp, $(T_SRC)))
+T_SRC = $(foreach tdir, $(TEST_SRC_DIR), $(wildcard $(tdir)*.cc)) $(foreach tdir, $(TEST_SRC_DIR), $(wildcard $(tdir)*.cpp))
+T_OBJ = $(patsubst $(TEST_PREFIX)%.cc, $(BUILD_PREFIX)$(T_COMPILED_DIR)%.o, $(filter %.cc, $(T_SRC))) $(patsubst $(TEST_PREFIX)%.cpp, $(BUILD_PREFIX)$(T_COMPILED_DIR)%.o, $(filter %.cpp, $(T_SRC)))
 
 VPATH = $(SRC_DIR) $(TEST_SRC_DIR)
 
@@ -97,9 +77,9 @@ GEN_DIRS = $(BIN_PATH) $(BUILD_DIR) $(TEST_DIR) $(SRC_DIR) $(TEST_SRC_DIR) $(INC
 GEN_C_RULES = $(BUILD_DIR) $(TEST_DIR)
 
 define make-c-goal 
-$1/%.o: %.cc 
+$1%.o: %.cc 
 	$(CXX) -iquote$(INCLUDE_PREFIX) $(CFLAGS) -c $$< -o $$@ $(LDFLAGS) $(LDLIBS)
-$1/%.o: %.cpp 
+$1%.o: %.cpp 
 	$(CXX) -iquote$(INCLUDE_PREFIX) $(CFLAGS) -c $$< -o $$@ $(LDFLAGS) $(LDLIBS)
 endef
 
