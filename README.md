@@ -1,5 +1,5 @@
 # Quickmake
-A makefile for creating C projects using the GCC compiler.
+A makefile for creating C and C++ projects using the GNU Make build system.
 
 ### Project Structure
 This GNU makefile takes advantage of a specific directory structure. 
