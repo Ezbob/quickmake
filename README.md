@@ -19,13 +19,13 @@ The compilation process creates a top-level `build` directory that containes the
   
 A `clean` target removes the entire `build` directory. 
 
-Customization of the directories listed above can be done the `buildvar.mk` file stored with the makefile.
+Customization of most of the directories listed above can be done the `buildvar.mk` file stored with the makefile.
 
 ### How to get going
 
 To get started you have to edited the following variables in the `buildvar.mk` file to suit your project:
 
-  - `MODULES` and `TEST_MODULES`: These variables reflect the modules containing source for the regular executable and the test executable. Both varibles are an whitespace-seperated list of directories names with no trailing slash. 
+  - `MODULES` and `TEST_MODULES`: These variables reflect the modules containing source for the regular executable and the test executable. Both varibles are an whitespace-seperated list of directories names with a trailing slash. 
   - `TEST_EXEC` and `EXEC`: These variables are the names of our executables we want to compile. As both executables will be placed in the same directory it will be a good idea to give different names to the variables.
 
 Once this is done, use `make rollout` to create the directory structure discussed in the previous section.
