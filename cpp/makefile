@@ -80,9 +80,21 @@ GEN_DIRS = $(BIN_PATH) $(BUILD_DIR) $(TEST_DIR) $(SRC_DIR) $(TEST_SRC_DIR) $(INC
 GEN_C_RULES = $(BUILD_DIR) $(TEST_DIR)
 
 define make-c-goal 
-$1%.o: %.cc 
+$1%.o: %.C
 	$(CXX) -iquote$(INCLUDE_PREFIX) $(CXXFLAGS) -c $$< -o $$@ $(LDFLAGS) $(LDLIBS)
-$1%.o: %.cpp 
+$1%.o: %.cc
+	$(CXX) -iquote$(INCLUDE_PREFIX) $(CXXFLAGS) -c $$< -o $$@ $(LDFLAGS) $(LDLIBS)
+$1%.o: %.CC
+	$(CXX) -iquote$(INCLUDE_PREFIX) $(CXXFLAGS) -c $$< -o $$@ $(LDFLAGS) $(LDLIBS)
+$1%.o: %.cpp
+	$(CXX) -iquote$(INCLUDE_PREFIX) $(CXXFLAGS) -c $$< -o $$@ $(LDFLAGS) $(LDLIBS)
+$1%.o: %.CPP
+	$(CXX) -iquote$(INCLUDE_PREFIX) $(CXXFLAGS) -c $$< -o $$@ $(LDFLAGS) $(LDLIBS)
+$1%.o: %.cxx
+	$(CXX) -iquote$(INCLUDE_PREFIX) $(CXXFLAGS) -c $$< -o $$@ $(LDFLAGS) $(LDLIBS)
+$1%.o: %.cp
+	$(CXX) -iquote$(INCLUDE_PREFIX) $(CXXFLAGS) -c $$< -o $$@ $(LDFLAGS) $(LDLIBS)
+$1%.o: %.c++
 	$(CXX) -iquote$(INCLUDE_PREFIX) $(CXXFLAGS) -c $$< -o $$@ $(LDFLAGS) $(LDLIBS)
 endef
 
