@@ -67,10 +67,10 @@ clean:
 	rm -rf $(BUILD_PREFIX)
 
 $(EXEC_PATH): $(OBJ)
-	$(CXX) -iquote$(INCLUDE_PREFIX) $(CFLAGS) $^ -o $@ $(LDFLAGS) $(LDLIBS)
+	$(CXX) -iquote$(INCLUDE_PREFIX) $(CXXFLAGS) $^ -o $@ $(LDFLAGS) $(LDLIBS)
 
 $(TEXEC_PATH): $(OBJ) $(T_OBJ)
-	$(CXX) -iquote$(INCLUDE_PREFIX) $(CFLAGS) $^ -o $@ $(LDFLAGS) $(LDLIBS)
+	$(CXX) -iquote$(INCLUDE_PREFIX) $(CXXFLAGS) $^ -o $@ $(LDFLAGS) $(LDLIBS)
 
 ## Auto-generating implicit rules
 
@@ -81,9 +81,9 @@ GEN_C_RULES = $(BUILD_DIR) $(TEST_DIR)
 
 define make-c-goal 
 $1%.o: %.cc 
-	$(CXX) -iquote$(INCLUDE_PREFIX) $(CFLAGS) -c $$< -o $$@ $(LDFLAGS) $(LDLIBS)
+	$(CXX) -iquote$(INCLUDE_PREFIX) $(CXXFLAGS) -c $$< -o $$@ $(LDFLAGS) $(LDLIBS)
 $1%.o: %.cpp 
-	$(CXX) -iquote$(INCLUDE_PREFIX) $(CFLAGS) -c $$< -o $$@ $(LDFLAGS) $(LDLIBS)
+	$(CXX) -iquote$(INCLUDE_PREFIX) $(CXXFLAGS) -c $$< -o $$@ $(LDFLAGS) $(LDLIBS)
 endef
 
 define make-dirs
