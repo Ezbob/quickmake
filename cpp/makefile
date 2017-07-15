@@ -38,8 +38,8 @@ SRC = $(foreach sdir, $(SRC_DIR), $(wildcard $(sdir)*.cc)) $(foreach sdir, $(SRC
 OBJ = $(patsubst $(SOURCE_PREFIX)%.cc, $(BUILD_PREFIX)$(COMPILED_DIR)%.o, $(filter %.cc, $(SRC))) $(patsubst $(SOURCE_PREFIX)%.cpp, $(BUILD_PREFIX)$(COMPILED_DIR)%.o, $(filter %.cpp, $(SRC))) 
 
 TEXEC_PATH = $(addprefix $(BIN_PATH), $(TEST_EXEC))
-TEST_SRC_DIR = $(addprefix $(TEST_PREFIX), $(TEST_MODULES))
-TEST_DIR = $(addprefix $(BUILD_PREFIX), $(addprefix $(T_COMPILED_DIR), $(TEST_MODULES)))
+TEST_SRC_DIR = $(addprefix $(TEST_PREFIX), $(TEST_MODULES_DIR))
+TEST_DIR = $(addprefix $(BUILD_PREFIX), $(addprefix $(T_COMPILED_DIR), $(TEST_MODULES_DIR)))
 
 T_SRC = $(foreach tdir, $(TEST_SRC_DIR), $(wildcard $(tdir)*.cc)) $(foreach tdir, $(TEST_SRC_DIR), $(wildcard $(tdir)*.cpp))
 T_OBJ = $(patsubst $(TEST_PREFIX)%.cc, $(BUILD_PREFIX)$(T_COMPILED_DIR)%.o, $(filter %.cc, $(T_SRC))) $(patsubst $(TEST_PREFIX)%.cpp, $(BUILD_PREFIX)$(T_COMPILED_DIR)%.o, $(filter %.cpp, $(T_SRC)))
