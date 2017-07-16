@@ -25,28 +25,40 @@
 ########
 include buildvars.mk
 
+SUFFIX = .cpp .C .cc .CC .CPP .cxx .cp .c++
+
 BIN_PATH = $(addprefix $(BUILD_PREFIX), bin/)
 
 MODULES_DIR = $(foreach mod, $(MODULES), $(mod)/ )
 TEST_MODULES_DIR = $(foreach mod, $(TEST_MODULES), $(mod)/ )
 
+# Artifact Dirs
 EXEC_PATH = $(addprefix $(BIN_PATH), $(EXEC))
-SRC_DIR = $(addprefix $(SOURCE_PREFIX), $(MODULES_DIR))
+SRC_DIR = $(addprefix $(SOURCE_PREFIX), $(MODULES_DIR)) $(SOURCE_PREFIX)
 BUILD_DIR = $(addprefix $(BUILD_PREFIX), $(addprefix $(COMPILED_DIR), $(MODULES_DIR))) $(addprefix $(BUILD_PREFIX), $(COMPILED_DIR))
 
-SRC = $(foreach sdir, $(SRC_DIR), $(wildcard $(sdir)*.cc)) $(foreach sdir, $(SRC_DIR), $(wildcard $(sdir)*.cpp)) 
-OBJ = $(patsubst $(SOURCE_PREFIX)%.cc, $(BUILD_PREFIX)$(COMPILED_DIR)%.o, $(filter %.cc, $(SRC))) $(patsubst $(SOURCE_PREFIX)%.cpp, $(BUILD_PREFIX)$(COMPILED_DIR)%.o, $(filter %.cpp, $(SRC))) 
-
+# TEST dirs
 TEXEC_PATH = $(addprefix $(BIN_PATH), $(TEST_EXEC))
-TEST_SRC_DIR = $(addprefix $(TEST_PREFIX), $(TEST_MODULES))
-TEST_DIR = $(addprefix $(BUILD_PREFIX), $(addprefix $(T_COMPILED_DIR), $(TEST_MODULES)))
+TEST_SRC_DIR = $(addprefix $(TEST_PREFIX), $(TEST_MODULES_DIR)) $(TEST_PREFIX)
+TEST_DIR = $(addprefix $(BUILD_PREFIX), $(addprefix $(T_COMPILED_DIR), $(TEST_MODULES_DIR)))
 
-T_SRC = $(foreach tdir, $(TEST_SRC_DIR), $(wildcard $(tdir)*.cc)) $(foreach tdir, $(TEST_SRC_DIR), $(wildcard $(tdir)*.cpp))
-T_OBJ = $(patsubst $(TEST_PREFIX)%.cc, $(BUILD_PREFIX)$(T_COMPILED_DIR)%.o, $(filter %.cc, $(T_SRC))) $(patsubst $(TEST_PREFIX)%.cpp, $(BUILD_PREFIX)$(T_COMPILED_DIR)%.o, $(filter %.cpp, $(T_SRC)))
+define findsrc
+$(strip $(foreach dir, $1, $(foreach format, $(SUFFIX), $(wildcard $(strip $(dir))*$(format)))))
+endef
+
+define findobj
+$(strip $(foreach suff, $(SUFFIX), $(patsubst %$(suff), %.o, $(filter $2%$(suff), $(foreach name, $3, $(subst $1, $2, $(name)))))))
+endef
+
+T_SRC = $(call findsrc, $(TEST_SRC_DIR))
+T_OBJ = $(call findobj, $(TEST_PREFIX), $(BUILD_PREFIX)$(T_COMPILED_DIR), $(T_SRC))
+
+SRC = $(call findsrc, $(SRC_DIR))
+OBJ = $(call findobj, $(SOURCE_PREFIX), $(BUILD_PREFIX)$(COMPILED_DIR), $(SRC))
 
 VPATH = $(SRC_DIR) $(TEST_SRC_DIR)
 
-.PHONY: all test checkdirs testcheckdirs clean run_tests rollout
+.PHONY: all test checkdirs testcheckdirs clean run_tests rollout valgrind valgrind_test
 
 all: checkdirs $(EXEC_PATH)
 
@@ -54,6 +66,7 @@ tests: testcheckdirs $(TEXEC_PATH)
 
 run_tests: tests
 	exec $(TEXEC_PATH)
+
 run: all
 	exec $(EXEC_PATH)
 
@@ -66,43 +79,36 @@ checkdirs: $(BUILD_DIR) $(BIN_PATH)
 clean:
 	rm -rf $(BUILD_PREFIX)
 
+valgrind: all
+	valgrind $(VALGRIND_OPTS) $(EXEC_PATH)
+
+valgrind_test: tests 
+	valgrind $(VALGRIND_OPTS) $(TEXEC_PATH)
+
 $(EXEC_PATH): $(OBJ)
-	$(CXX) -iquote$(INCLUDE_PREFIX) $(CXXFLAGS) $^ -o $@ $(LDFLAGS) $(LDLIBS)
+	$(CXX) -iquote$(INCLUDE_PREFIX) -iquote$(TEMPLATE_PREFIX) $(CXXFLAGS) -o $@ $^  $(LDFLAGS) $(LDLIBS)
 
 $(TEXEC_PATH): $(OBJ) $(T_OBJ)
-	$(CXX) -iquote$(INCLUDE_PREFIX) $(CXXFLAGS) $^ -o $@ $(LDFLAGS) $(LDLIBS)
+	$(CXX) -iquote$(INCLUDE_PREFIX) -iquote$(TEMPLATE_PREFIX) $(CXXFLAGS) -o $@ $^  $(LDFLAGS) $(LDLIBS)
 
-## Auto-generating implicit rules
+## Auto-generating rules
 
 # Stuff in define gets evaled twice so we need double $s
 
-GEN_DIRS = $(BIN_PATH) $(BUILD_DIR) $(TEST_DIR) $(SRC_DIR) $(TEST_SRC_DIR) $(INCLUDE_PREFIX)
-GEN_C_RULES = $(BUILD_DIR) $(TEST_DIR)
+GEN_DIRS = $(BIN_PATH) $(BUILD_DIR) $(TEST_DIR) $(SRC_DIR) $(TEST_SRC_DIR) $(INCLUDE_PREFIX) $(TEMPLATE_PREFIX)
+GEN_RULE_DIRS = $(BUILD_DIR) $(TEST_DIR)
 
-define make-c-goal 
-$1%.o: %.C
-	$(CXX) -iquote$(INCLUDE_PREFIX) $(CXXFLAGS) -c $$< -o $$@ $(LDFLAGS) $(LDLIBS)
-$1%.o: %.cc
-	$(CXX) -iquote$(INCLUDE_PREFIX) $(CXXFLAGS) -c $$< -o $$@ $(LDFLAGS) $(LDLIBS)
-$1%.o: %.CC
-	$(CXX) -iquote$(INCLUDE_PREFIX) $(CXXFLAGS) -c $$< -o $$@ $(LDFLAGS) $(LDLIBS)
-$1%.o: %.cpp
-	$(CXX) -iquote$(INCLUDE_PREFIX) $(CXXFLAGS) -c $$< -o $$@ $(LDFLAGS) $(LDLIBS)
-$1%.o: %.CPP
-	$(CXX) -iquote$(INCLUDE_PREFIX) $(CXXFLAGS) -c $$< -o $$@ $(LDFLAGS) $(LDLIBS)
-$1%.o: %.cxx
-	$(CXX) -iquote$(INCLUDE_PREFIX) $(CXXFLAGS) -c $$< -o $$@ $(LDFLAGS) $(LDLIBS)
-$1%.o: %.cp
-	$(CXX) -iquote$(INCLUDE_PREFIX) $(CXXFLAGS) -c $$< -o $$@ $(LDFLAGS) $(LDLIBS)
-$1%.o: %.c++
-	$(CXX) -iquote$(INCLUDE_PREFIX) $(CXXFLAGS) -c $$< -o $$@ $(LDFLAGS) $(LDLIBS)
-endef
 
 define make-dirs
 $1:
 	mkdir -p $$@
 endef
 
-# the following line creates all the implicit rules for the subdirectories
-$(foreach bdir, $(GEN_C_RULES), $(eval $(call make-c-goal, $(bdir))))
+define compilerule
+$1%.o:%$(strip $2)
+	$(CXX) -iquote$(INCLUDE_PREFIX) -iquote$(TEMPLATE_PREFIX) $(CXXFLAGS) -c $$< -o $$@ $(LDFLAGS) $(LDLIBS)
+endef
+
+# the following line creates all the rules for the subdirectories
+$(foreach dir, $(GEN_RULE_DIRS), $(foreach format, $(SUFFIX), $(eval $(call compilerule, $(dir), $(format))) ))
 $(foreach dir, $(GEN_DIRS), $(eval $(call make-dirs, $(dir))))

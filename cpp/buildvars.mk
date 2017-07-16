@@ -15,6 +15,9 @@ LDLIBS =
 # Linker flags
 LDFLAGS =
 
+# Valgrind options
+VALGRIND_OPTS =
+
 # Modules within source directory and test directory
 MODULES = fun
 TEST_MODULES = my_test_module
@@ -26,6 +29,9 @@ TEST_EXEC = test
 EXEC = main
 
 ## Directory names (remember to add the trailing "/" for this to work)
+
+# template definition directory
+TEMPLATE_PREFIX = templates/
 
 # Name for the build directory
 BUILD_PREFIX = build/
